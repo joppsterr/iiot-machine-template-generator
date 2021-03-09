@@ -9,6 +9,9 @@ __pycache__/
 # Dataset files
 *.csv
 
+# Visual code
+.vscode
+
 # Distribution / packaging
 .Python
 build/
@@ -130,4 +133,4 @@ dmypy.json
 
 # Pyre type checker
 .pyre/
-dataset.csv
+
