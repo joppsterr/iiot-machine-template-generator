@@ -6,28 +6,26 @@ from sklearn.decomposition import PCA
 import pandas as pd
 import numpy as np
 
-def reservoir_sampling(target_size, source):
-    target_size
-
+from custom_functions.corr_df import corr_df
 
 def correlation_check(filename):
     dataset = pd.read_csv(filename)
     correlation_matrix = dataset.corr()
     return correlation_matrix
 
-
 def main():
 
     # Read selected dataset
-    dataset = pd.read_csv("gas_sensor_array.csv")
+    dataset = pd.read_csv("datasets/gas_sensor_array.csv")
 
     # Correlation check
-    print(correlation_check("gas_sensor_array.csv"))
+    # print(correlation_check("gas_sensor_array.csv"))
 
     # Select relevant columns of dataset
     # subset = dataset
-    subset = dataset[["Time","CO","Humidity","Temperature","Flow rate","Heater voltage"]]
+    # subset = dataset[["Time","CO","Humidity","Temperature","Flow rate","Heater voltage"]]
     # subset = dataset[["Humidity","Heater voltage"]]
+    subset = corr_df(dataset, 0.7)
 
     # Reduce rows from 300 000 to specified n
     small_subset = subset.sample(n=50000)
@@ -40,7 +38,7 @@ def main():
     pca_subset = pca.fit_transform(scaled_subset)
 
     # Run DBSCAN
-    db = cl.DBSCAN(eps=0.6, min_samples=3).fit(pca_subset)
+    db = cl.DBSCAN(eps=0.5, min_samples=5).fit(pca_subset)
 
     # Start of results
     labels = db.labels_
