@@ -6,14 +6,27 @@ from sklearn.decomposition import PCA
 import pandas as pd
 import numpy as np
 
+def reservoir_sampling(target_size, source):
+    target_size
+
+
+def correlation_check(filename):
+    dataset = pd.read_csv(filename)
+    correlation_matrix = dataset.corr()
+    return correlation_matrix
+
+
 def main():
 
     # Read selected dataset
     dataset = pd.read_csv("gas_sensor_array.csv")
 
+    # Correlation check
+    print(correlation_check("gas_sensor_array.csv"))
+
     # Select relevant columns of dataset
     # subset = dataset
-    subset = dataset[["CO","Humidity","Temperature","Flow rate","Heater voltage"]]
+    subset = dataset[["Time","CO","Humidity","Temperature","Flow rate","Heater voltage"]]
     # subset = dataset[["Humidity","Heater voltage"]]
 
     # Reduce rows from 300 000 to specified n
@@ -27,7 +40,7 @@ def main():
     pca_subset = pca.fit_transform(scaled_subset)
 
     # Run DBSCAN
-    db = cl.DBSCAN(min_samples=3).fit(pca_subset)
+    db = cl.DBSCAN(eps=0.6, min_samples=3).fit(pca_subset)
 
     # Start of results
     labels = db.labels_
@@ -37,7 +50,7 @@ def main():
 
     print('Estimated number of clusters: %d' % n_clusters_)
     print('Estimated number of noise points: %d' % n_noise_)
-    #print("Silhouette Coefficient: %0.3f" % metrics.silhouette_score(pca_subset, labels))
+    # print("Silhouette Coefficient: %0.3f" % metrics.silhouette_score(pca_subset, labels))
 
 if __name__ == '__main__':
     main()
