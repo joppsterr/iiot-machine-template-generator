@@ -13,7 +13,7 @@ __pycache__/
 .vscode
 
 # Jupyter notebook
-.ipynb
+Notebook.ipynb
 
 # Distribution / packaging
 .Python
