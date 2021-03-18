@@ -23,7 +23,7 @@ def corr_df(x, corr_val):
             val = item.values
             if abs(val) >= corr_val:
                 # Prints the correlated feature set and the corr val
-                # print(col.values[0], "|", row.values[0], "|", round(val[0][0], 2))
+                print(col.values[0], "|", row.values[0], "|", round(val[0][0], 2))
                 drop_cols.append(i)
 
     drops = sorted(set(drop_cols))[::-1]
