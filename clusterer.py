@@ -1,5 +1,3 @@
-from operator import sub
-from scipy.sparse import data
 from sklearn import cluster as cl
 from sklearn import metrics
 from sklearn.preprocessing import StandardScaler
@@ -11,7 +9,7 @@ import matplotlib.pyplot as plt
 import hdbscan
 
 from custom_functions.corr_df import corr_df
-from custom_functions.result_plot import plot_result
+from custom_functions.result_plot import *
 
 def correlation_check(filename):
     dataset = pd.read_csv(filename)
@@ -36,8 +34,11 @@ def birch_clustering(pca_subset):
     print("birch_clustering")
     print('Estimated number of clusters: %d' % n_clusters_)
     print('Estimated number of noise points: %d' % n_noise_)
-    #print("Silhouette Coefficient: %0.3f" % metrics.silhouette_score(pca_subset, labels))
-    plot_result(pca_subset, labels, core_samples_mask, n_clusters_)
+    print("Silhouette Coefficient: %0.3f" % metrics.silhouette_score(pca_subset, labels))
+    if pca_subset.shape[1] > 2:
+        plot_result_3d(pca_subset, labels, core_samples_mask, n_clusters_)
+    else:
+        plot_result_with_noise_2d(pca_subset, labels, core_samples_mask, n_clusters_)
 
 def k_means_clustering(pca_subset, num_of_max_cluster_iterations=2):
     # Run K-Means
@@ -57,8 +58,11 @@ def k_means_clustering(pca_subset, num_of_max_cluster_iterations=2):
         n_clusters_ = len(set(labels)) - (1 if -1 in labels else 0)
         
         print("k_means_clustering")
-        #print("Silhouette Coefficient: %0.3f" % metrics.silhouette_score(pca_subset, labels))
-        plot_result(pca_subset, labels, core_samples_mask, n_clusters_)
+        print("Silhouette Coefficient: %0.3f" % metrics.silhouette_score(pca_subset, labels))
+        if pca_subset.shape[1] > 2:
+            plot_result_3d(pca_subset, labels, core_samples_mask, n_clusters_)
+        else:
+            plot_result_with_noise_2d(pca_subset, labels, core_samples_mask, n_clusters_)
         iterations = iterations + 1
 
 def dbscan_clustering(pca_subset, max_distance, min_samples):
@@ -74,8 +78,12 @@ def dbscan_clustering(pca_subset, max_distance, min_samples):
     print("dbscan_clustering")
     print('Estimated number of clusters: %d' % n_clusters_)
     print('Estimated number of noise points: %d' % n_noise_)
-    #print("Silhouette Coefficient: %0.3f" % metrics.silhouette_score(pca_subset, labels))
-    plot_result(pca_subset, labels, core_samples_mask, n_clusters_)
+    print("Silhouette Coefficient: %0.3f" % metrics.silhouette_score(pca_subset, labels))
+    
+    if pca_subset.shape[1] > 2:
+        plot_result_3d(pca_subset, labels, core_samples_mask, n_clusters_)
+    else:
+        plot_result_with_noise_2d(pca_subset, labels, core_samples_mask, n_clusters_)
 
 def hdbscan_clustering(pca_subset, min_cluster_size, min_samples, cluster_selection_epsilon=0):
     hdb = hdbscan.HDBSCAN(min_cluster_size=min_cluster_size, min_samples=min_samples, cluster_selection_epsilon=cluster_selection_epsilon).fit(pca_subset)
@@ -93,12 +101,16 @@ def hdbscan_clustering(pca_subset, min_cluster_size, min_samples, cluster_select
     print("hdbscan_clustering")
     print('Estimated number of clusters: %d' % n_clusters_)
     print('Estimated number of noise points: %d' % n_noise_)
-    #print("Silhouette Coefficient: %0.3f" % metrics.silhouette_score(pca_subset, labels))
-    plot_result(pca_subset, labels, core_samples_mask, n_clusters_)
+    print("Silhouette Coefficient: %0.3f" % metrics.silhouette_score(pca_subset, labels))
+
+    if pca_subset.shape[1] > 2:
+        plot_result_3d(pca_subset, labels, core_samples_mask, n_clusters_)
+    else:
+        plot_result_with_noise_2d(pca_subset, labels, core_samples_mask, n_clusters_)
 
 def main():
-    # filepath = "datasets/iot_telemetry_data.csv"
-    filepath = "datasets/gas_sensor_array.csv"
+    filepath = "datasets/iot_telemetry_data.csv"
+    # filepath = "datasets/gas_sensor_array.csv"
     
     # Read selected dataset
     dt = pd.read_csv(filepath)
@@ -110,11 +122,16 @@ def main():
     print(correlation_check(filepath))
 
     # Select relevant columns of dataset with low correlation
-    subset = corr_df(dataset, 0.3)
+    subset = corr_df(dataset, 0.5
+    )
 
-    # Reduce rows from 300 000 to specified n
-    # TODO Create a more advanced sampling method to not rely on random selection
-    small_subset = subset.sample(frac=0.25)
+    # Reduce bigger datasets to smaller size
+    if len(subset.axes[0])>100000:
+        # Select every tenth row
+        small_subset = subset.iloc[::10, :]
+    else:
+        small_subset = subset
+    
 
     # Transform data
     scaled_subset = StandardScaler().fit_transform(small_subset)
@@ -126,10 +143,10 @@ def main():
     print(pca.explained_variance_)
     print(pca.explained_variance_ratio_)
     
-    dbscan_clustering(pca_subset, 0.4, 8)
-    hdbscan_clustering(pca_subset, 200, 10, 0.4)
-    k_means_clustering(pca_subset,5)
-    birch_clustering(pca_subset)
+    # dbscan_clustering(pca_subset, 0.4, 8)
+    # hdbscan_clustering(pca_subset, 200, 10, 0.4)
+    # k_means_clustering(pca_subset, 5)
+    # birch_clustering(pca_subset)
 
 if __name__ == '__main__':
     main()
