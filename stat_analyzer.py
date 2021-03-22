@@ -8,6 +8,8 @@ def main():
     # Analyze statistical properties of the data
     sensor_data_table = pd.read_csv("datasets/gas_sensor_array.csv")
     
+    # For each sensor in each cluster
+
     #TODO: Create list for each statistical distribution possible
     dists = list()
 
@@ -19,13 +21,14 @@ def main():
         # or as each unique value in sensor
         # amt_of_bins = np.arange(sensor_data_table[sensor_name].min(), sensor_data_table[sensor_name].max())
     
-        plt.hist(sensor_data_table[sensor_name], amt_of_bins)
-        plt.title(sensor_name)
-        plt.show()
+        # plt.hist(sensor_data_table[sensor_name], amt_of_bins)
+        # plt.title(sensor_name)
+        # plt.show()
 
         # Compare to other probability distribution
         for prob_dist in dists:
-            ch2value = chisquare(sensor_data_table[sensor_name],prob_dist)
+            chi2 = chisquare(sensor_data_table[sensor_name], prob_dist)
+            print("Chi square value %d", chi2)
     
         # Save probability distribution, max value, min value
 

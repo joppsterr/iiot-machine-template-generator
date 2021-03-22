@@ -5,7 +5,6 @@ from sklearn.decomposition import PCA
 
 import pandas as pd
 import numpy as np
-import matplotlib.pyplot as plt
 import hdbscan
 
 from custom_functions.corr_df import corr_df
@@ -108,9 +107,11 @@ def hdbscan_clustering(pca_subset, min_cluster_size, min_samples, cluster_select
     else:
         plot_result_with_noise_2d(pca_subset, labels, core_samples_mask, n_clusters_)
 
+    return labels
+
 def main():
-    filepath = "datasets/iot_telemetry_data.csv"
-    # filepath = "datasets/gas_sensor_array.csv"
+    # filepath = "datasets/iot_telemetry_data.csv"
+    filepath = "datasets/gas_sensor_array.csv"
     
     # Read selected dataset
     dt = pd.read_csv(filepath)
@@ -122,8 +123,7 @@ def main():
     print(correlation_check(filepath))
 
     # Select relevant columns of dataset with low correlation
-    subset = corr_df(dataset, 0.5
-    )
+    subset = corr_df(dataset, 0.5)
 
     # Reduce bigger datasets to smaller size
     if len(subset.axes[0])>100000:
@@ -131,7 +131,6 @@ def main():
         small_subset = subset.iloc[::10, :]
     else:
         small_subset = subset
-    
 
     # Transform data
     scaled_subset = StandardScaler().fit_transform(small_subset)
@@ -143,10 +142,16 @@ def main():
     print(pca.explained_variance_)
     print(pca.explained_variance_ratio_)
     
+
     # dbscan_clustering(pca_subset, 0.4, 8)
-    # hdbscan_clustering(pca_subset, 200, 10, 0.4)
+    label_list = hdbscan_clustering(pca_subset, 200, 10, 0.4)
     # k_means_clustering(pca_subset, 5)
     # birch_clustering(pca_subset)
+
+    # Concatenate list of labels to small subset, output new small csv file with labels
+    labeled_dataset = small_subset.assign(Cluster = label_list)
+
+    labeled_dataset.to_csv("labeled_dataset.csv", index = False)
 
 if __name__ == '__main__':
     main()
