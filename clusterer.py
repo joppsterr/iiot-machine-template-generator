@@ -5,9 +5,10 @@ from sklearn.decomposition import PCA
 
 import pandas as pd
 import numpy as np
+import matplotlib.pyplot as plt
 import hdbscan
 
-from custom_functions.corr_df import corr_df
+from custom_functions.corr_df import *
 from custom_functions.result_plot import *
 
 def correlation_check(filename):
@@ -84,8 +85,8 @@ def dbscan_clustering(pca_subset, max_distance, min_samples):
     else:
         plot_result_with_noise_2d(pca_subset, labels, core_samples_mask, n_clusters_)
 
-def hdbscan_clustering(pca_subset, min_cluster_size, min_samples, cluster_selection_epsilon=0):
-    hdb = hdbscan.HDBSCAN(min_cluster_size=min_cluster_size, min_samples=min_samples, cluster_selection_epsilon=cluster_selection_epsilon).fit(pca_subset)
+def hdbscan_clustering(pca_subset, min_cluster_size, min_samples, cluster_selection_epsilon, alpha):
+    hdb = hdbscan.HDBSCAN(min_cluster_size=min_cluster_size, min_samples=min_samples, cluster_selection_epsilon=cluster_selection_epsilon, alpha=alpha).fit(pca_subset)
 
     labels = hdb.labels_
     core_samples_mask = np.zeros_like(hdb.labels_, dtype=bool)
@@ -101,11 +102,15 @@ def hdbscan_clustering(pca_subset, min_cluster_size, min_samples, cluster_select
     print('Estimated number of clusters: %d' % n_clusters_)
     print('Estimated number of noise points: %d' % n_noise_)
     print("Silhouette Coefficient: %0.3f" % metrics.silhouette_score(pca_subset, labels))
+    print("Davies-Bouldin index: %0.3f" % metrics.davies_bouldin_score(pca_subset, labels))
+    print("Calinski index: %0.3f" % metrics.calinski_harabasz_score(pca_subset, labels))
 
-    if pca_subset.shape[1] > 2:
-        plot_result_3d(pca_subset, labels, core_samples_mask, n_clusters_)
-    else:
-        plot_result_with_noise_2d(pca_subset, labels, core_samples_mask, n_clusters_)
+    # if pca_subset.shape[1] > 2:
+    #     plot_result_3d(pca_subset, labels, core_samples_mask, n_clusters_)
+    # elif pca_subset.shape[1] < 4:
+    #     plot_result_with_noise_2d(pca_subset, labels, core_samples_mask, n_clusters_)
+    # else:
+    #     print("Dimensions in dataset larger than 3 dim")
 
     return labels
 
@@ -144,7 +149,8 @@ def main():
     
 
     # dbscan_clustering(pca_subset, 0.4, 8)
-    label_list = hdbscan_clustering(pca_subset, 200, 10, 0.4)
+    # label_list = hdbscan_clustering(pca_subset, 200, 10, 0.4)
+    label_list = hdbscan_clustering(pca_subset, 1000, 15)
     # k_means_clustering(pca_subset, 5)
     # birch_clustering(pca_subset)
 
@@ -152,6 +158,12 @@ def main():
     labeled_dataset = small_subset.assign(Cluster = label_list)
 
     labeled_dataset.to_csv("labeled_dataset.csv", index = False)
+
+    plt.scatter(labeled_dataset["Time"], labeled_dataset["Cluster"])
+    plt.title("Distribution of clusters against time")
+    plt.xlabel("Time")
+    plt.ylabel("Cluster label")
+    plt.show()
 
 if __name__ == '__main__':
     main()
