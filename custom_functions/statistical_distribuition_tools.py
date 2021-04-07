@@ -1,9 +1,11 @@
 import pandas as pd
 import numpy as np
 import scipy
-from sklearn.preprocessing import StandardScaler
 import scipy.stats
 import matplotlib.pyplot as plt
+
+from sklearn.preprocessing import StandardScaler
+from custom_functions.freedman_diaconis import freedman_diaconis
 
 
 def dist_finder(sensor_name):
@@ -47,14 +49,25 @@ def dist_finder(sensor_name):
 
     # Set up 50 bins for chi-square test
     # Observed data will be approximately evenly distrubuted aross all bins
-    percentile_bins = np.linspace(0,100,51)
-    percentile_cutoffs = np.percentile(y_std, percentile_bins)
-    observed_frequency, bins = (np.histogram(y_std, bins=percentile_cutoffs))
-    cum_observed_frequency = np.cumsum(observed_frequency)
+    # percentile_bins = np.linspace(0,100,51)
+    # percentile_cutoffs = np.percentile(y_std, percentile_bins)
+    # observed_frequency, bins = (np.histogram(y_std, bins=percentile_cutoffs))
+    # cum_observed_frequency = np.cumsum(observed_frequency)
 
     # Loop through candidate distributions
 
     for distribution in dist_names:
+        # Set up 50 bins for chi-square test
+        # Observed data will be approximately evenly distrubuted aross all bins
+        min = y.min()
+        max = y.max()
+        # TODO: Fix percentile bins for chi square
+        percentile_bins = np.linspace(min, max, 51)
+        percentile_cutoffs = np.percentile(y_std, percentile_bins)
+        observed_frequency, bins = (np.histogram(y_std, bins=percentile_cutoffs))
+        cum_observed_frequency = np.cumsum(observed_frequency)
+
+
         # Set up distribution and get fitted distribution parameters
         dist = getattr(scipy.stats, distribution)
         param = dist.fit(y_std)
@@ -94,7 +107,7 @@ def dist_finder(sensor_name):
     print (results)
 
     # Divide the observed data into 100 bins for plotting (this can be changed)
-    number_of_bins = 100
+    number_of_bins = freedman_diaconis(y)
     bin_cutoffs = np.linspace(np.percentile(y,0), np.percentile(y,99),number_of_bins)
 
     # Create the plot

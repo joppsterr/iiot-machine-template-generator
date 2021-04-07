@@ -20,6 +20,7 @@ def main():
         # if sensor_data_table.loc[sensor_data_table['Cluster'] == cluster]:
 
 
+    dist_finder("Temperature")
 
     # for sensor_name in list(sensor_data_table.columns):
         # dist_finder(sensor_name)

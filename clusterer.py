@@ -85,8 +85,8 @@ def dbscan_clustering(pca_subset, max_distance, min_samples):
     else:
         plot_result_with_noise_2d(pca_subset, labels, core_samples_mask, n_clusters_)
 
-def hdbscan_clustering(pca_subset, min_cluster_size, min_samples, cluster_selection_epsilon, alpha):
-    hdb = hdbscan.HDBSCAN(min_cluster_size=min_cluster_size, min_samples=min_samples, cluster_selection_epsilon=cluster_selection_epsilon, alpha=alpha).fit(pca_subset)
+def hdbscan_clustering(pca_subset, min_cluster_size, min_samples, cluster_selection_epsilon):
+    hdb = hdbscan.HDBSCAN(min_cluster_size=min_cluster_size, min_samples=min_samples, cluster_selection_epsilon=cluster_selection_epsilon).fit(pca_subset)
 
     labels = hdb.labels_
     core_samples_mask = np.zeros_like(hdb.labels_, dtype=bool)
@@ -150,7 +150,7 @@ def main():
 
     # dbscan_clustering(pca_subset, 0.4, 8)
     # label_list = hdbscan_clustering(pca_subset, 200, 10, 0.4)
-    label_list = hdbscan_clustering(pca_subset, 1000, 15)
+    label_list = hdbscan_clustering(pca_subset, 1000, 15, 0.4)
     # k_means_clustering(pca_subset, 5)
     # birch_clustering(pca_subset)
 
