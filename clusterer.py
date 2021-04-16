@@ -105,18 +105,18 @@ def hdbscan_clustering(pca_subset, min_cluster_size, min_samples, cluster_select
     print("Davies-Bouldin index: %0.3f" % metrics.davies_bouldin_score(pca_subset, labels))
     print("Calinski index: %0.3f" % metrics.calinski_harabasz_score(pca_subset, labels))
 
-    # if pca_subset.shape[1] > 2:
-    #     plot_result_3d(pca_subset, labels, core_samples_mask, n_clusters_)
-    # elif pca_subset.shape[1] < 4:
-    #     plot_result_with_noise_2d(pca_subset, labels, core_samples_mask, n_clusters_)
-    # else:
-    #     print("Dimensions in dataset larger than 3 dim")
+    if pca_subset.shape[1] > 2:
+        plot_result_3d(pca_subset, labels, core_samples_mask, n_clusters_)
+    elif pca_subset.shape[1] < 4:
+        plot_result_with_noise_2d(pca_subset, labels, core_samples_mask, n_clusters_)
+    else:
+        print("Dimensions in dataset larger than 3 dim")
 
     return labels
 
 def main():
-    # filepath = "datasets/iot_telemetry_data.csv"
-    filepath = "datasets/gas_sensor_array.csv"
+    filepath = "datasets/iot_telemetry_data.csv"
+    # filepath = "datasets/gas_sensor_array.csv"
     
     # Read selected dataset
     dt = pd.read_csv(filepath)
@@ -149,7 +149,6 @@ def main():
     
 
     # dbscan_clustering(pca_subset, 0.4, 8)
-    # label_list = hdbscan_clustering(pca_subset, 200, 10, 0.4)
     label_list = hdbscan_clustering(pca_subset, 1000, 15, 0.4)
     # k_means_clustering(pca_subset, 5)
     # birch_clustering(pca_subset)

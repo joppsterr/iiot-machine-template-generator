@@ -56,18 +56,19 @@ def dist_finder(sensor_name):
 
     # Loop through candidate distributions
 
-    for distribution in dist_names:
-        # Set up 50 bins for chi-square test
+    # Set up 50 bins for chi-square test
         # Observed data will be approximately evenly distrubuted aross all bins
-        min = y.min()
-        max = y.max()
-        # TODO: Fix percentile bins for chi square
-        percentile_bins = np.linspace(min, max, 51)
-        percentile_cutoffs = np.percentile(y_std, percentile_bins)
-        observed_frequency, bins = (np.histogram(y_std, bins=percentile_cutoffs))
-        cum_observed_frequency = np.cumsum(observed_frequency)
+    min = y.min()
+    max = y.max()
+        
+    # TODO: Fix percentile bins for chi square
+    percentile_bins = np.linspace(min, max, 50)
+    percentile_cutoffs = np.percentile(y_std, percentile_bins)
+    observed_frequency, bins = (np.histogram(y_std, bins=percentile_cutoffs))
+    cum_observed_frequency = np.cumsum(observed_frequency)
 
-
+    for distribution in dist_names:
+        
         # Set up distribution and get fitted distribution parameters
         dist = getattr(scipy.stats, distribution)
         param = dist.fit(y_std)
@@ -117,7 +118,7 @@ def dist_finder(sensor_name):
     number_distributions_to_plot = 3
     dist_names = results['Distribution'].iloc[0:number_distributions_to_plot]
 
-    # Create an empty list to stroe fitted distribution parameters
+    # Create an empty list to store fitted distribution parameters
     parameters = []
 
     # Loop through the distributions ot get line fit and paraemters

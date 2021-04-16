@@ -2,7 +2,7 @@ import pandas as pd
 import matplotlib.pyplot as plt
 
 from scipy.stats import chisquare
-from custom_functions.freedman_diaconis import freedman_diaconis
+
 from custom_functions.statistical_distribuition_tools import dist_finder
 
 def main():
@@ -19,8 +19,8 @@ def main():
         print(dataset_cluster)
         # if sensor_data_table.loc[sensor_data_table['Cluster'] == cluster]:
 
-
     dist_finder("Temperature")
+    dist_finder("Humidity")
 
     # for sensor_name in list(sensor_data_table.columns):
         # dist_finder(sensor_name)
