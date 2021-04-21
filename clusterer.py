@@ -1,3 +1,4 @@
+import sys
 from sklearn import cluster as cl
 from sklearn import metrics
 from sklearn.preprocessing import StandardScaler
@@ -147,6 +148,7 @@ def main():
     print(pca.explained_variance_)
     print(pca.explained_variance_ratio_)
     
+    sys.stdout = open('output-hdbscan-iot-telemetry-data.txt','wt')
 
     # dbscan_clustering(pca_subset, 0.4, 8)
     label_list = hdbscan_clustering(pca_subset, 1000, 15, 0.4)

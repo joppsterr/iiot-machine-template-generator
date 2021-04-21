@@ -27,6 +27,7 @@ def freedman_diaconis(data, returnas="bins"):
     else:
         datmin, datmax = data.min(), data.max()
         datrng = datmax - datmin
+        if bw==0: bw = 1
         result = int((datrng / bw) + 1)
 
     return result

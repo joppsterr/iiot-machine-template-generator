@@ -53,9 +53,9 @@ def dist_finder(sensor_name, dataset):
     chi_square = []
     p_values = []
 
-    # Set up 50 bins for chi-square test
+    # Set up bins for chi-square test
     # Observed data will be approximately evenly distrubuted aross all bins
-    percentile_bins = np.linspace(0,100,51)
+    percentile_bins = np.linspace(0,100,freedman_diaconis(y))
     percentile_cutoffs = np.percentile(y_std, percentile_bins)
     observed_frequency, bins = (np.histogram(y_std, bins=percentile_cutoffs))
     cum_observed_frequency = np.cumsum(observed_frequency)
@@ -69,7 +69,7 @@ def dist_finder(sensor_name, dataset):
         
         # Obtain the KS test P statistic, round it to 5 decimal places
         p = scipy.stats.kstest(y_std, distribution, args=param)[1]
-        p = np.around(p, 5)
+        # p = np.around(p, 5)
         p_values.append(p)    
         
         # Get expected counts in percentile bins
