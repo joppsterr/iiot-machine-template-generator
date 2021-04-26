@@ -116,30 +116,32 @@ def hdbscan_clustering(pca_subset, min_cluster_size, min_samples, cluster_select
     return labels
 
 def main():
-    filepath = "datasets/iot_telemetry_data.csv"
+    # filepath = "datasets/iot_telemetry_data.csv"
+    # filepath = "datasets/C9.csv"
+    filepath = "datasets/C8.csv"
     # filepath = "datasets/gas_sensor_array.csv"
     
     # Read selected dataset
     dt = pd.read_csv(filepath)
 
     # Only select computable values
-    dataset = dt.select_dtypes("float64")
+    dataset = dt.select_dtypes("number")
 
     # Correlation check
-    print(correlation_check(filepath))
-
-    # Select relevant columns of dataset with low correlation
-    subset = corr_df(dataset, 0.5)
+    # print(correlation_check(filepath))
 
     # Reduce bigger datasets to smaller size
-    if len(subset.axes[0])>100000:
+    if len(dataset.axes[0])>100000:
         # Select every tenth row
-        small_subset = subset.iloc[::10, :]
+        small_subset = dataset.iloc[::10, :]
     else:
-        small_subset = subset
+        small_subset = dataset
+
+    # Select relevant columns of dataset with low correlation
+    small_no_corr_subset = corr_df(small_subset, 0.7)
 
     # Transform data
-    scaled_subset = StandardScaler().fit_transform(small_subset)
+    scaled_subset = StandardScaler().fit_transform(small_no_corr_subset)
 
     # Reduce dimension with PCA
     pca = PCA(n_components=0.75)
@@ -148,7 +150,7 @@ def main():
     print(pca.explained_variance_)
     print(pca.explained_variance_ratio_)
     
-    sys.stdout = open('output-hdbscan-iot-telemetry-data.txt','wt')
+    sys.stdout = open('output-hdbscan-c9.txt','wt')
 
     # dbscan_clustering(pca_subset, 0.4, 8)
     label_list = hdbscan_clustering(pca_subset, 1000, 15, 0.4)
@@ -157,8 +159,7 @@ def main():
 
     # Concatenate list of labels to small subset, output new small csv file with labels
     labeled_dataset = small_subset.assign(Cluster = label_list)
-
-    labeled_dataset.to_csv("labeled_dataset.csv", index = False)
+    labeled_dataset.to_csv("labeled_dataset_c8.csv", index = False)
 
     plt.scatter(labeled_dataset["Time"], labeled_dataset["Cluster"])
     plt.title("Distribution of clusters against time")

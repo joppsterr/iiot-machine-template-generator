@@ -9,6 +9,10 @@ __pycache__/
 # Dataset files
 *.csv
 *.txt
+*.zip
+
+# Output files
+output.json
 
 # Visual code
 .vscode

@@ -49,7 +49,8 @@ def dist_finder(sensor_name, dataset):
                 'weibull_min', 
                 'weibull_max']
 
-    # Set up empty lists to stroe results
+    # Set up empty lists to stroe results and create an empty list to store fitted distribution parameters
+    parameters = []
     chi_square = []
     p_values = []
 
@@ -67,16 +68,15 @@ def dist_finder(sensor_name, dataset):
         dist = getattr(scipy.stats, distribution)
         param = dist.fit(y_std)
         
-        # Obtain the KS test P statistic, round it to 5 decimal places
+        # Obtain the KS test P statistic
         p = scipy.stats.kstest(y_std, distribution, args=param)[1]
-        # p = np.around(p, 5)
         p_values.append(p)    
         
         # Get expected counts in percentile bins
         # This is based on a 'cumulative distrubution function' (cdf)
-        cdf_fitted = dist.cdf(percentile_cutoffs, *param[:-2], loc=param[-2], 
-                            scale=param[-1])
+        cdf_fitted = dist.cdf(percentile_cutoffs, *param[:-2], loc=param[-2], scale=param[-1])
         expected_frequency = []
+
         for bin in range(len(percentile_bins)-1):
             expected_cdf_area = cdf_fitted[bin+1] - cdf_fitted[bin]
             expected_frequency.append(expected_cdf_area)
@@ -89,10 +89,17 @@ def dist_finder(sensor_name, dataset):
             
     # Collate results and sort by goodness of fit (best at top)
 
+    for dist_name in dist_names:
+        # Set up distribution and store distribution paraemters
+        dist = getattr(scipy.stats, dist_name)
+        param = dist.fit(y)
+        parameters.append(param)
+
     results = pd.DataFrame()
     results['Distribution'] = dist_names
     results['chi_square'] = chi_square
     results['p_value'] = p_values
+    results['Parameters'] = parameters
     results.sort_values(['chi_square'], inplace=True)
         
     return results
